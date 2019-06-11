@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width = device-width, initial-scale = 1">
+        <script>if (typeof module === 'object') {window.module = module; module = undefined;}
+        </script>
+        <script src="assets/js/jquery.js"></script>
+        <script src="assets/js/requestAnimationFrame.js"></script>
+        <script src="assets/js/windowcontrols.js"></script>
+        <script src="assets/js/parser.js"></script>
+        <script src="assets/js/index.js"></script>
+        <script>if (window.module) module = window.module;</script>
+        <link href="https://fonts.googleapis.com/css?family=K2D" rel="stylesheet" type="text/css">
+        <script>
+                document.addEventListener("keydown", function (e) {
+                    if (e.which === 123) {
+                        require('electron').remote.getCurrentWindow().toggleDevTools();
+                    } else if (e.which === 116) {
+                        location.reload();
+                    }
+                });
+            </script>
+        <meta charset="UTF-8">
+        <link href="assets/css/windowcontrols.css" rel="stylesheet" type="text/css">
+        <title>PulseAudio Virtual Audio Cable Manager</title>
+    </head>
+    <body>
+        <div style="-webkit-app-region: drag;border-bottom-color: #ffffffd3" id="title-bar">
+            <img id="title-img" src="../icons/icon.png" height="24px" width="24px">
+            <div id="title">PulseAudio Virtual Audio Cable Manager</div>
+            <div id="title-bar-btns">
+                <button id="close-btn" style="font-size: 15px" class="control-button">❌</button>
+                <button id="max-btn" style="font-size: 16px;vertical-align: text-top;" class="control-button">⬛</button>
+                <button id="min-btn" style="font-size: 20px" class="control-button">—</button>
+            </div>
+        </div>
+        <div class="title-bar"></div>
+        <div id="sinks-container"></div>
+        <div id="v-sinks-container"></div>
+        <div id="twosinks-container"></div>
+    </body>
+</html>

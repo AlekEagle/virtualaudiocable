@@ -1,0 +1,33 @@
+{
+  "name": "virtualcablemanager",
+  "productName": "PulseAudio Virtual Audio Cable Manager",
+  "version": "1.0.0",
+  "description": "This is a program to manage your virtual audio cables in pulseaudio for Linux",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/AlekEagleYT/virtualaudiocable.git"
+  },
+  "keywords": [
+    "virtual",
+    "audio",
+    "cable",
+    "linux",
+    "pulseaudio"
+  ],
+  "author": "AlekEagle",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlekEagleYT/virtualaudiocable/issues"
+  },
+  "homepage": "https://github.com/AlekEagleYT/virtualaudiocable#readme",
+  "dependencies": {
+    "@types/collections": "^5.0.0",
+    "collections": "^5.1.9",
+    "electron": "^5.0.3",
+    "electron-prompt": "^1.3.1"
+  }
+}
