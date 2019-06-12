@@ -461,9 +461,15 @@ input {
     width: calc(98vw / 3);
 }
 
-.sink *, .vsink *, .twosink * {
+.devicename {
     font-size: 24px;
     margin: 0px;
+}
+
+.iotype {
+    font-size: 16px;
+    margin: 0px;
+    color: #888888;
 }
 
 .sink, .vsink, .twosink {
@@ -474,6 +480,7 @@ input {
     margin: 20px 20px 20px 20px;
     padding: 10px 20px 10px 20px;
     border-radius: 10px;
+    transition-duration: 0.5s;
 }
 
 #promptwindow {
@@ -512,4 +519,48 @@ input {
     outline: none;
     border-radius: 20px;
     padding: 3px 10px 3px 10px;
+}
+
+.glowing {
+    background-color: #333333 !important;
+    box-shadow: inset 0px 0px 30px #d6d6d6 !important;
+}
+
+.glowing .devicename {
+    color: #d6d6d6 !important;
+}
+
+.glowing .iotype {
+    color: #888888 !important;
+}
+
+.greyedout {
+    background-color: #000000;
+}
+
+.greyedout * {
+    color: #616161;
+}
+
+#notification-bottom {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    background-color: #212121;
+}
+
+#notification-message {
+    font-size: 22px;
+}
+
+#notification-close {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    -webkit-user-select: none;
+}
+
+.hidden {
+    display: none;
 }

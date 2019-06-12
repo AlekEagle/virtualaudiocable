@@ -11,6 +11,69 @@ let deleteAllLines;
 let elmsClicked = [];
 
 $(document).ready(() => {
+    document.getElementById('notification-close').addEventListener('click', () => {
+        document.getElementById('notification-bottom').classList.add('hidden');
+    }, false)
+    function onThingClicked(e) {
+        if (e.path[0].nodeName === 'P' ? !e.path[1].classList.contains('greyedout') : !e.path[0].classList.contains('greyedout')) {
+            elmsClicked.push(e.path[0].nodeName === 'P' ? e.path[1] : e.path[0]);
+            if (elmsClicked[elmsClicked.length -1].classList.contains('glowing')) {
+                elmsClicked[elmsClicked.length - 1].classList.remove('glowing');
+                document.querySelectorAll('div.greyedout').forEach(i => {
+                    i.classList.remove('greyedout');
+                });
+                elmsClicked = [];
+                return;
+            }
+            elmsClicked[elmsClicked.length - 1].classList.add('glowing');
+            document.addEventListener('keydown', c => {
+                if (c.keyCode === 27) {
+                    document.querySelectorAll('div.glowing').forEach(i => {
+                        i.classList.remove('glowing');
+                    });
+                    document.querySelectorAll('div.greyedout').forEach(i => {
+                        i.classList.remove('greyedout');
+                    });
+                    elmsClicked = [];
+                }
+            })
+            if(elmsClicked.length === 1) {
+                switch(elmsClicked[0].getAttribute('data-iotype')) {
+                    case 'mo':
+                        document.querySelectorAll('div[data-iotype="mo"], div[data-iotype="i"]').forEach(i => {
+                            i.classList.add('greyedout');
+                        });
+                    break;
+                    case 'o': 
+                        document.querySelectorAll('div[data-iotype="o"], div[data-iotype="vi"]').forEach(i => {
+                            i.classList.add('greyedout');
+                        });
+                    break;
+                    case 'i': 
+                        document.querySelectorAll('div[data-iotype="mo"], div[data-iotype="i"]').forEach(i => {
+                            i.classList.add('greyedout');
+                        });
+                    break;
+                    case 'vi': 
+                        document.querySelectorAll('div[data-iotype="o"]').forEach(i => {
+                            i.classList.add('greyedout');
+                        });
+                    break;
+                }
+            }else if (elmsClicked.length === 2) {
+                document.querySelectorAll('div.glowing').forEach(i => {
+                    i.classList.remove('glowing');
+                });
+                document.querySelectorAll('div.greyedout').forEach(i => {
+                    i.classList.remove('greyedout');
+                });
+                if (confirm(`Are you sure you want connect the source: "${elmsClicked.filter(i => i.getAttribute('data-iotype') === 'mo' || i.getAttribute('data-iotype') === 'i')[0].getAttribute('data-sinkdisplayname')}" to the sink: "${elmsClicked.filter(i => i.getAttribute('data-iotype') === 'vi' || i.getAttribute('data-iotype') === 'o')[0].getAttribute('data-sinkdisplayname')}"?`)) {
+                    exec(`pacmd load-module module-loopback source="${elmsClicked.filter(i => i.getAttribute('data-iotype') === 'mo' || i.getAttribute('data-iotype') === 'i')[0].getAttribute('data-sinkname')}" sink="${elmsClicked.filter(i => i.getAttribute('data-iotype') === 'vi' || i.getAttribute('data-iotype') === 'o')[0].getAttribute('data-sinkname')}"`)
+                }
+                elmsClicked = [];
+            }
+        }
+    }
     drawLine = (thing1, thing2, index, cableModule, cableSource, cableSink, menu) => {
         let $t = $(thing1);
         let $i = $(thing2);
@@ -39,6 +102,7 @@ $(document).ready(() => {
         can.setAttribute('height', p.y1 - p.y + 10);
         can.setAttribute('id', `${thing1}${thing2}`);
         can.setAttribute('data-cableid', index);
+        can.classList.add('connectingline');
         can.setAttribute('data-cablemodule', cableModule);
         can.setAttribute('data-cablesource', cableSource);
         can.setAttribute('data-cablesink', cableSink);
@@ -120,15 +184,22 @@ $(document).ready(() => {
             parsed.forEach(t => {
                 if (!document.getElementById(`sink${t.name.replace(/(<|>)/g, '').replace(/\./g, '_')}`) && t.driver !== '<module-null-sink.c>') {
                     let parentNode = document.createElement('div');
-                    let textNode = document.createElement('p');
+                    let textNode1 = document.createElement('p');
+                    let textNode2 = document.createElement('p');
                     parentNode.id = `sink${t.name.replace(/(<|>)/g, '').replace(/\./g, '_')}`;
                     parentNode.setAttribute('data-sinkid', t.index);
                     parentNode.setAttribute('data-sinkmodule', t.module);
                     parentNode.setAttribute('data-sinkdisplayname', t['properties']['device.description']);
                     parentNode.setAttribute('data-sinkname', t['name'].split(' ')[1] ? t['name'].split(' ')[1].replace(/(<|>)/g, '') : t['name'].replace(/(<|>)/g, ''));
+                    parentNode.setAttribute('data-iotype', t['name'].includes('output') ? t['properties']['device.description'].includes('Monitor ') ? 'mo' : 'o' : t['name'].includes('sink') ? 'o' : 'i');
+                    parentNode.addEventListener('click', onThingClicked, false);
                     parentNode.classList.add('sink');
-                    textNode.innerText = t['properties']['device.description'];
-                    parentNode.appendChild(textNode);
+                    textNode1.classList.add('iotype');
+                    textNode2.classList.add('devicename');
+                    textNode1.innerText = t['name'].includes('output') ? t['properties']['device.description'].includes('Monitor ') ? 'Monitor Output' : 'Output' : t['name'].includes('sink') ? 'Output' : 'Input';
+                    textNode2.innerText = t['properties']['device.description'];
+                    parentNode.appendChild(textNode1);
+                    parentNode.appendChild(textNode2);
                     sinksContainer.appendChild(parentNode);
                 }
             });
@@ -146,8 +217,16 @@ $(document).ready(() => {
             parsed.forEach(t => {
                 if (!document.getElementById(`vsink${t.name.replace(/(<|>)/g, '').replace(/\./g, '_')}`) && t.driver === '<module-null-sink.c>') {
                     let parentNode = document.createElement('div');
-                    let textNode = document.createElement('p');
+                    let textNode1 = document.createElement('p');
+                    let textNode2 = document.createElement('p');
                     if (t.driver === '<module-null-sink.c>') {
+                        if (t.name.includes('monitor')) {
+                            parentNode.setAttribute('data-iotype', 'mo');
+                            textNode1.innerText = 'Monitor Output';
+                        }else {
+                            parentNode.setAttribute('data-iotype', 'vi');
+                            textNode1.innerText = 'Virtual Input';
+                        }
                         parentNode.addEventListener('contextmenu', (e) => {
                             const menu = new Menu();
                             menu.append(new MenuItem({
@@ -162,15 +241,22 @@ $(document).ready(() => {
                                 window: remote.getCurrentWindow()
                             })
                         });
+                    }else {
+                        parentNode.setAttribute('data-iotype', t['name'].includes('output') ? t['properties']['device.description'].includes('Monitor ') ? 'mo' : 'o' : 'i');
+                        textNode1.innerText = t['name'].includes('output') ? t['properties']['device.description'].includes('Monitor ') ? 'Monitor Output' : 'Output' : 'Input';
                     }
                     parentNode.id = `vsink${t.name.replace(/(<|>)/g, '').replace(/\./g, '_')}`;
                     parentNode.setAttribute('data-sinkid', t.index);
                     parentNode.setAttribute('data-sinkmodule', t.module);
                     parentNode.setAttribute('data-sinkdisplayname', t['properties']['device.description']);
                     parentNode.setAttribute('data-sinkname', t['name'].split(' ')[1] ? t['name'].split(' ')[1].replace(/(<|>)/g, '') : t['name'].replace(/(<|>)/g, ''));
-                    parentNode.classList.add('vsink');
-                    textNode.innerText = t['properties']['device.description'];
-                    parentNode.appendChild(textNode);
+                    parentNode.addEventListener('click', onThingClicked, false);
+                    parentNode.classList.add('sink');
+                    textNode1.classList.add('iotype');
+                    textNode2.classList.add('devicename');
+                    textNode2.innerText = t['properties']['device.description'];
+                    parentNode.appendChild(textNode1);
+                    parentNode.appendChild(textNode2);
                     vSinksContainer.appendChild(parentNode);
                 }
             });
@@ -188,8 +274,16 @@ $(document).ready(() => {
             parsed.forEach(t => {
                 if (!document.getElementById(`twosink${t.name.replace(/(<|>)/g, '').replace(/\./g, '_')}`) && !t['properties']['device.description'].toLowerCase().includes('monitor of ')) {
                     let parentNode = document.createElement('div');
-                    let textNode = document.createElement('p');
+                    let textNode1 = document.createElement('p');
+                    let textNode2 = document.createElement('p');
                     if (t.driver === '<module-null-sink.c>') {
+                        if (t.name.includes('monitor')) {
+                            parentNode.setAttribute('data-iotype', 'mo');
+                            textNode1.innerText = 'Monitor Output';
+                        }else {
+                            parentNode.setAttribute('data-iotype', 'vi');
+                            textNode1.innerText = 'Virtual Input';
+                        }
                         parentNode.addEventListener('contextmenu', (e) => {
                             const menu = new Menu();
                             menu.append(new MenuItem({
@@ -204,15 +298,23 @@ $(document).ready(() => {
                                 window: remote.getCurrentWindow()
                             })
                         });
+                    }else {
+                        
+                    parentNode.setAttribute('data-iotype', t['name'].includes('output') ? t['properties']['device.description'].includes('Monitor ') ? 'mo' : 'o' : t['name'].includes('sink') ? 'o' : 'i');
+                    textNode1.innerText = t['name'].includes('output') ? t['properties']['device.description'].includes('Monitor ') ? 'Monitor Output' : 'Output' : t['name'].includes('sink') ? 'Output' : 'Input';
                     }
                     parentNode.id = `twosink${t.name.replace(/(<|>)/g, '').replace(/\./g, '_')}`;
                     parentNode.setAttribute('data-sinkid', t.index);
                     parentNode.setAttribute('data-sinkmodule', t.module);
                     parentNode.setAttribute('data-sinkdisplayname', t['properties']['device.description']);
                     parentNode.setAttribute('data-sinkname', t['name'].split(' ')[1] ? t['name'].split(' ')[1].replace(/(<|>)/g, '') : t['name'].replace(/(<|>)/g, ''));
-                    parentNode.classList.add('twosink');
-                    textNode.innerText = t['properties']['device.description'];
-                    parentNode.appendChild(textNode);
+                    parentNode.addEventListener('click', onThingClicked, false);
+                    parentNode.classList.add('sink');
+                    textNode1.classList.add('iotype');
+                    textNode2.classList.add('devicename');
+                    textNode2.innerText = t['properties']['device.description'];
+                    parentNode.appendChild(textNode1);
+                    parentNode.appendChild(textNode2);
                     twoSinksContainer.appendChild(parentNode);
                 }
             });
