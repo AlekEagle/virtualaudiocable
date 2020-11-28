@@ -1,9 +1,9 @@
-const {app, BrowserWindow} = require('electron');
+const { app, BrowserWindow } = require('electron');
 
 let mainWindow;
 
-function createWindow () {
-    mainWindow = new BrowserWindow({width: 800, height: 600, minHeight: 600, minWidth: 800, backgroundColor: '#212121', frame: false, icon: require('path').join(__dirname, '/icons/icon-256x256.png')});
+function createWindow() {
+    mainWindow = new BrowserWindow({ width: 800, height: 600, minHeight: 600, minWidth: 800, backgroundColor: '#212121', frame: false, webPreferences: { nodeIntegration: true } });
     mainWindow.loadFile('views/index.html');
     mainWindow.maximize();
     mainWindow.on('closed', () => mainWindow = null);
@@ -12,8 +12,7 @@ function createWindow () {
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin')
-    {
+    if (process.platform !== 'darwin') {
         app.quit();
     }
 });

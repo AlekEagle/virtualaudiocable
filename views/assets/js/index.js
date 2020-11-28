@@ -55,7 +55,7 @@ $(document).ready(() => {
                         });
                     break;
                     case 'vi': 
-                        document.querySelectorAll('div[data-iotype="o"]').forEach(i => {
+                        document.querySelectorAll('div[data-iotype="o"], div[data-iotype="vi"]').forEach(i => {
                             i.classList.add('greyedout');
                         });
                     break;
@@ -191,12 +191,12 @@ $(document).ready(() => {
                     parentNode.setAttribute('data-sinkmodule', t.module);
                     parentNode.setAttribute('data-sinkdisplayname', t['properties']['device.description']);
                     parentNode.setAttribute('data-sinkname', t['name'].split(' ')[1] ? t['name'].split(' ')[1].replace(/(<|>)/g, '') : t['name'].replace(/(<|>)/g, ''));
-                    parentNode.setAttribute('data-iotype', t['name'].includes('output') ? t['properties']['device.description'].includes('Monitor ') ? 'mo' : 'o' : t['name'].includes('sink') ? 'o' : 'i');
+                    parentNode.setAttribute('data-iotype', t['name'].includes('output') ? t['name'].includes('monitor') ? 'mo' : 'o' : t['name'].includes('sink') ? 'o' : 'i');
                     parentNode.addEventListener('click', onThingClicked, false);
                     parentNode.classList.add('sink');
                     textNode1.classList.add('iotype');
                     textNode2.classList.add('devicename');
-                    textNode1.innerText = t['name'].includes('output') ? t['properties']['device.description'].includes('Monitor ') ? 'Monitor Output' : 'Output' : t['name'].includes('sink') ? 'Output' : 'Input';
+                    textNode1.innerText = t['name'].includes('output') ? t['name'].includes('monitor') ? 'Monitor Output' : 'Output' : t['name'].includes('sink') ? 'Output' : 'Input';
                     textNode2.innerText = t['properties']['device.description'];
                     parentNode.appendChild(textNode1);
                     parentNode.appendChild(textNode2);
